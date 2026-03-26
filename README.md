@@ -20,6 +20,10 @@ The raw source is polled repeatedly, so the pipeline stores append-only snapshot
 - Tile 2: Delay distribution by origin airport
 - Tile 3: Delay trend over time
 
+## Dashboard Preview
+
+![KRK Balice Arrivals Monitoring dashboard](dashboards/looker/image.png)
+
 ## Architecture
 
 `AeroDataBox -> publisher -> Redpanda/Kafka -> Flink -> GCS -> Airflow -> BigQuery -> dbt -> Looker Studio`
