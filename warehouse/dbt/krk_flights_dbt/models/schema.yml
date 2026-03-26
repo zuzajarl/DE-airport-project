@@ -1,0 +1,47 @@
+version: 2
+
+models:
+  - name: stg_raw_arrivals_events
+    description: Clean staging model for raw Krakow Airport arrival events.
+    columns:
+      - name: flight_number
+        data_tests:
+          - not_null
+      - name: ingested_at
+        data_tests:
+          - not_null
+      - name: status_bucket
+        data_tests:
+          - accepted_values:
+              values: ['on_time', 'delayed', 'unknown']
+
+  - name: mart_recent_arrivals
+    description: Latest snapshot per flight for the recent arrivals dashboard tile.
+    columns:
+      - name: flight_number
+        data_tests:
+          - not_null
+
+  - name: int_latest_arrivals
+    description: Deduplicated latest snapshot per flight and scheduled arrival time.
+    columns:
+      - name: flight_number
+        data_tests:
+          - not_null
+      - name: scheduled_arrival_utc
+        data_tests:
+          - not_null
+
+  - name: mart_delay_distribution
+    description: Delay distribution aggregated by origin airport.
+    columns:
+      - name: origin_icao
+        data_tests:
+          - not_null
+
+  - name: mart_delay_trend
+    description: Hourly delay trend dataset for dashboarding.
+    columns:
+      - name: scheduled_arrival_date
+        data_tests:
+          - not_null

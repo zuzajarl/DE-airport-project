@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: krk_flights
+    database: axial-trail-485514-p5
+    schema: krk_flights
+    tables:
+      - name: krk_arrivals_raw
+        description: Raw arrivals events loaded from GCS into BigQuery.
