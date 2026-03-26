@@ -28,6 +28,39 @@ services:
       - 9092:9092
       - 28082:28082
       - 29092:29092
+  publisher:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.publisher
+    image: airport-publisher
+    depends_on:
+      - redpanda
+    env_file:
+      - .env
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=redpanda:29092
+      - KAFKA_TOPIC=krk_arrivals
+      - PUBLISH_INTERVAL_SECONDS=300
+      - PYTHONUNBUFFERED=1
+  airflow:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.airflow
+    image: airport-airflow
+    depends_on:
+      - redpanda
+    ports:
+      - "8085:8080"
+    volumes:
+      - ./orchestration/dags:/opt/airflow/dags
+      - ./orchestration/dbt_profiles:/opt/airflow/dbt_profiles
+      - ./warehouse/dbt/krk_flights_dbt:/opt/airflow/dbt/krk_flights_dbt
+      - ./creds:/opt/airflow/creds:ro
+    environment:
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - GOOGLE_APPLICATION_CREDENTIALS=/opt/airflow/creds/gcp-service-account.json
+      - PYTHONWARNINGS=ignore
+    command: standalone
   jobmanager:
     platform: linux/amd64
     build:

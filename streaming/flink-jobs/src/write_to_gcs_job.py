@@ -62,7 +62,8 @@ def create_sink_table(t_env):
 def log_processing():
     # Set up the table environment
     env = StreamExecutionEnvironment.get_execution_environment()
-    env.enable_checkpointing(10000)
+    env.set_parallelism(1)
+    env.enable_checkpointing(5000)
     
     settings = EnvironmentSettings.new_instance().in_streaming_mode().build()
     t_env = StreamTableEnvironment.create(stream_execution_environment=env, environment_settings=settings)

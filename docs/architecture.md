@@ -2,11 +2,11 @@
 
 ## Core flow
 
-`AeroDataBox -> Producer -> Kafka -> Flink -> GCS + BigQuery -> dbt -> Looker Studio`
+`AeroDataBox -> publisher -> Kafka -> Flink -> GCS -> Airflow -> BigQuery -> dbt -> Looker Studio`
 
 ## Canonical Event Schema
 
-This is the normalized arrival event shape produced by `ingestion/producer/producer.py`.
+This is the normalized arrival event shape produced by `ingestion/producer.py`.
 
 Each row represents one flight arrival for Krakow Airport (`EPKK` / `KRK`) at a specific ingestion time.
 
@@ -47,12 +47,12 @@ Each row represents one flight arrival for Krakow Airport (`EPKK` / `KRK`) at a 
 - `status_bucket` supports dashboard logic and consistent aggregations
 - The next schema revision should add `origin_iata` and `airline_iata` for easier reporting in BigQuery and Looker Studio
 
-## Main entities
+## Processing layers
 
-- flight arrival event
-- latest flight status snapshot
-- delay metric by route
-- hourly and daily delay aggregates
+- Raw layer: append-only flight snapshots in GCS and the raw BigQuery table
+- Staging layer: cleaned source-aligned records in dbt
+- Intermediate layer: latest snapshot per flight in `int_latest_arrivals`
+- Mart layer: dashboard-facing aggregates and latest-arrival datasets
 
 ## Dashboard datasets
 
@@ -63,11 +63,12 @@ Each row represents one flight arrival for Krakow Airport (`EPKK` / `KRK`) at a 
 ## Dashboard Mapping
 
 - `mart_recent_arrivals`: latest arrival records with `flight_number`, `status`, `status_bucket`, `airline_name`, `origin_name`, `scheduled_arrival_utc`, `revised_arrival_utc`, `delay_minutes`
-- `mart_delay_distribution`: aggregate `delay_minutes` by `origin_icao` and later by `origin_iata`
-- `mart_delay_trend`: aggregate average and median `delay_minutes` by hour and day based on `ingested_at` and scheduled arrival timestamps
+- `mart_delay_distribution`: aggregate `delay_minutes` by `origin_icao`
+- `mart_delay_trend`: aggregate average delay over time using scheduled arrival timestamps and derived day/hour fields
 
 ## Recommended warehouse strategy
 
 - Raw events table partitioned by ingestion date
-- Curated facts partitioned by service date
-- Cluster curated tables by `airport_code`, `arrival_status`, `origin_iata`, `destination_iata`, `airline_code`
+- Raw table loaded from GCS by Airflow
+- dbt staging and marts rebuilt on a schedule by Airflow
+- Deduplication done in dbt using latest `ingested_at` per `flight_number + scheduled_arrival_utc`

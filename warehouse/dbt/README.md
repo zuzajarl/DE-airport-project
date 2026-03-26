@@ -1,7 +1,13 @@
 # dbt Layer
 
-Recommended model groups:
+This directory contains the dbt transformation layer for the project.
+
+## Current project
+
+- project root: `warehouse/dbt/krk_flights_dbt`
+
+## Model groups
 
 - `models/staging`: normalized source-aligned models
-- `models/marts`: dashboard-facing facts and aggregates
-- `seeds`: static mappings such as airport and airline reference data
+- `models/intermediate`: deduplicated latest-flight snapshots
+- `models/marts`: dashboard-facing tables used by Looker Studio

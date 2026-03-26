@@ -1,0 +1,13 @@
+krk_flights_dbt:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: service-account
+      project: axial-trail-485514-p5
+      dataset: krk_flights
+      location: US
+      threads: 4
+      keyfile: /opt/airflow/creds/gcp-service-account.json
+      job_execution_timeout_seconds: 300
+      job_retries: 1

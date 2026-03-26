@@ -12,3 +12,8 @@ dependencies = [
     "pyarrow>=23.0.1",
     "requests>=2.32.5",
 ]
+
+[dependency-groups]
+dev = [
+    "dbt-bigquery>=1.11.1",
+]

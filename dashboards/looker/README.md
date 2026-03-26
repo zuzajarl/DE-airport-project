@@ -1,14 +1,15 @@
 # Dashboard Assets
 
-Store:
+Looker Studio dashboard built on the dbt mart tables.
 
-- dashboard field definitions
-- screenshots
-- filter notes
-- tile descriptions
+## Current tiles
 
-Expected tiles:
+- recent arrivals table
+- delay distribution by origin airport
+- delay trend over time
 
-- recent arrivals by status
-- delay distribution by source/destination
-- delay trend by hour/day
+Use the dbt mart tables as sources:
+
+- `mart_recent_arrivals`
+- `mart_delay_distribution`
+- `mart_delay_trend`

@@ -1,0 +1,6 @@
+project_id       = "axial-trail-485514-p5"
+region           = "us-central1"
+location         = "US"
+credentials_file = "/Users/zuzannajarlaczynska/DE-airport-project/creds/gcp-service-account.json"
+bucket_name      = "krk-flights-bucket"
+dataset_id       = "krk_flights"

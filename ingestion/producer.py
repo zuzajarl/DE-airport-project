@@ -1,14 +1,17 @@
-import json
-import requests
 import os
+from math import ceil
+
 import pandas as pd
+import requests
 
 
 def get_flight_data():
     url = "https://aerodatabox.p.rapidapi.com/flights/airports/icao/EPKK"
+    poll_interval_seconds = int(os.getenv("PUBLISH_INTERVAL_SECONDS", "300"))
+    window_minutes = max(5, ceil(poll_interval_seconds / 60))
 
-    querystring = {"offsetMinutes":"-5",
-                "durationMinutes":"100",
+    querystring = {"offsetMinutes": str(-window_minutes),
+                "durationMinutes": str(window_minutes * 2),
                 "withLeg":"true",
                 "direction":"Arrival",
                 "withCancelled":"true",
@@ -24,9 +27,12 @@ def get_flight_data():
     }
 
     response = requests.get(url, headers=headers, params=querystring, timeout=30)
-    response.raise_for_status()  # Check if the request was successful
+    response.raise_for_status()
+
+    if response.status_code == 204:
+        print("AeroDataBox returned 204 No Content", flush=True)
+        return {"arrivals": []}
     return response.json()
-# print(json.dumps(data, indent=4))
 
 
 def process_flight_data(data):
@@ -43,7 +49,8 @@ def process_flight_data(data):
             'airline_icao': flight.get('airline', {}).get('icao', None),
         }
         flights.append(flight_info)
-
+    if not flights:
+        return []
     df = pd.DataFrame(flights)
     df['scheduled_arrival_utc'] = pd.to_datetime(df['scheduled_arrival_utc'], utc=True, errors='coerce')
     df['revised_arrival_utc'] = pd.to_datetime(df['revised_arrival_utc'], utc=True, errors='coerce')
