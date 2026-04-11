@@ -4,8 +4,8 @@ krk_flights_dbt:
     dev:
       type: bigquery
       method: service-account
-      project: axial-trail-485514-p5
-      dataset: krk_flights
+      project: "{{ env_var('GCP_PROJECT_ID') }}"
+      dataset: "{{ env_var('BQ_DATASET_ID', 'krk_flights') }}"
       location: US
       threads: 4
       keyfile: /opt/airflow/creds/gcp-service-account.json

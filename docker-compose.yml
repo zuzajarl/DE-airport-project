@@ -56,6 +56,8 @@ services:
       - ./orchestration/dbt_profiles:/opt/airflow/dbt_profiles
       - ./warehouse/dbt/krk_flights_dbt:/opt/airflow/dbt/krk_flights_dbt
       - ./creds:/opt/airflow/creds:ro
+    env_file:
+      - .env
     environment:
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
       - GOOGLE_APPLICATION_CREDENTIALS=/opt/airflow/creds/gcp-service-account.json
@@ -77,6 +79,8 @@ services:
       - ./flink-config.yaml:/opt/flink/conf/config.yaml
       - ./creds:/opt/creds:ro
     command: jobmanager
+    env_file:
+      - .env
     environment:
       - |
         FLINK_PROPERTIES=
@@ -99,6 +103,8 @@ services:
     depends_on:
       - jobmanager
     command: taskmanager --taskmanager.registration.timeout 5 min
+    env_file:
+      - .env
     environment:
       - |
         FLINK_PROPERTIES=

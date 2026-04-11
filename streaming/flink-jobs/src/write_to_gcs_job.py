@@ -1,7 +1,13 @@
+import os
+
 from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.table import EnvironmentSettings, StreamTableEnvironment
 
-path= "gs://krk-flights-bucket/krk_arrivals_raw/"
+_bucket = os.environ["GCS_BUCKET_NAME"]
+path = f"gs://{_bucket}/krk_arrivals_raw/"
+
+_kafka_servers = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "redpanda:29092")
+_kafka_topic = os.environ.get("KAFKA_TOPIC", "krk_arrivals")
 
 
 def create_kafka_source_table(t_env):
@@ -21,8 +27,8 @@ def create_kafka_source_table(t_env):
             ingested_at STRING
         ) WITH (
             'connector' = 'kafka',
-            'properties.bootstrap.servers' = 'redpanda:29092',
-            'topic' = 'krk_arrivals',
+            'properties.bootstrap.servers' = '{_kafka_servers}',
+            'topic' = '{_kafka_topic}',
             'scan.startup.mode' = 'earliest-offset',
             'properties.auto.offset.reset' = 'earliest',
             'format' = 'json',

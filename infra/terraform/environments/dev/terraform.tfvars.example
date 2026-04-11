@@ -1,6 +1,22 @@
-project_id       = "axial-trail-485514-p5"
-region           = "us-central1"
-location         = "US"
-credentials_file = "/Users/zuzannajarlaczynska/DE-airport-project/creds/gcp-service-account.json"
-bucket_name      = "krk-flights-bucket"
-dataset_id       = "krk_flights"
+# Copy this file to terraform.tfvars and fill in your values.
+# terraform.tfvars is excluded from git via .gitignore.
+
+# Your GCP project ID (find it in the GCP Console → project selector)
+project_id = "your-gcp-project-id"
+
+# Region for the GCP provider (e.g. "us-central1", "europe-west1")
+region = "us-central1"
+
+# Multi-region location for GCS and BigQuery (e.g. "US", "EU")
+location = "US"
+
+# Path to your GCP service account JSON key, relative to this directory.
+# Place the file at <repo-root>/creds/gcp-service-account.json.
+# Required IAM roles: Storage Admin, BigQuery Data Editor, BigQuery Job User.
+credentials_file = "../../../../creds/gcp-service-account.json"
+
+# GCS bucket name — must be globally unique across all of GCP
+bucket_name = "your-gcs-bucket-name"
+
+# BigQuery dataset name
+dataset_id = "krk_flights"

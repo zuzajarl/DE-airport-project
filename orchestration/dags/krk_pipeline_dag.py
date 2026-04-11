@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 
 from airflow import DAG
@@ -6,16 +7,22 @@ from airflow.operators.python import PythonOperator
 from google.cloud import bigquery
 
 
-PROJECT_ID = "axial-trail-485514-p5"
-DATASET_ID = "krk_flights"
-TABLE_ID = "krk_arrivals_raw"
-GCS_URI = "gs://krk-flights-bucket/krk_arrivals_raw/*"
+PROJECT_ID = os.environ["GCP_PROJECT_ID"]
+DATASET_ID = os.environ.get("BQ_DATASET_ID", "krk_flights")
+TABLE_ID = os.environ.get("BQ_TABLE_ID", "krk_arrivals_raw")
+GCS_BUCKET = os.environ["GCS_BUCKET_NAME"]
+GCS_URI = f"gs://{GCS_BUCKET}/krk_arrivals_raw/*"
 
 
 def load_raw_arrivals_to_bigquery() -> None:
     client = bigquery.Client(project=PROJECT_ID)
     table_ref = f"{PROJECT_ID}.{DATASET_ID}.{TABLE_ID}"
 
+    # WRITE_TRUNCATE is intentional: GCS is the append-only source of truth.
+    # On each run the raw BigQuery table is fully rebuilt from all accumulated
+    # GCS files so that the table always reflects the complete history without
+    # duplicate rows from repeated DAG executions.  Deduplication to the latest
+    # flight snapshot is then handled by dbt's int_latest_arrivals model.
     job_config = bigquery.LoadJobConfig(
         source_format=bigquery.SourceFormat.NEWLINE_DELIMITED_JSON,
         write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE,
